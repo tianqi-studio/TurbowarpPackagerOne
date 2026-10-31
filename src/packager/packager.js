@@ -230,6 +230,15 @@ class Packager extends EventTarget {
     if (typeof __ASSETS__ !== 'undefined' && __ASSETS__[asset.src]) {
       return __ASSETS__[asset.src];
     }
+    if (typeof __BINARY_ASSETS__ !== 'undefined' && __BINARY_ASSETS__[asset.src]) {
+      // Standalone builds inline binary assets such as the SFX stubs as base64.
+      const binary = atob(__BINARY_ASSETS__[asset.src]);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
     const dispatchProgress = (progress) => this.dispatchEvent(new CustomEvent('large-asset-fetch', {
       detail: {
         asset: name,

@@ -15,6 +15,15 @@ for (const path of scaffoldingFiles) {
   scaffoldingAssets[path] = fs.readFileSync(pathUtil.join(dist, path), 'utf-8');
 }
 
+const sfxFiles = glob.sync('sfx/*.exe', {
+  cwd: dist
+});
+console.log(`sfx: ${sfxFiles.join(', ')}`);
+const sfxAssets = {};
+for (const path of sfxFiles) {
+  sfxAssets[path] = fs.readFileSync(pathUtil.join(dist, path)).toString('base64');
+}
+
 const indexPath = pathUtil.join(dist, 'index.html');
 console.log(`index.html: ${indexPath}`);
 const indexContent = fs.readFileSync(indexPath, 'utf8');
@@ -29,13 +38,21 @@ console.log(`favicon.ico: ${faviconData ? faviconPath : 'none'}`);
 
 const makeSafeForInlineScript = (content) => content.replace(/<\/script>/g, '\\u003c/script>');
 let standaloneJS = '';
+standaloneJS += Object.entries(sfxAssets).map(([name, content]) => (
+  `<script type="p4-standalone-binary-asset" data-name="${name}">${content}</script>`
+)).join('');
 standaloneJS += Object.entries(scaffoldingAssets).map(([name, content]) => (
   `<script type="p4-standalone-asset" data-name="${name}">${makeSafeForInlineScript(content)}</script>`
 )).join('');
 standaloneJS += `<script>
 window.__ASSETS__ = {};
-for (const el of Array.from(document.querySelectorAll('script[type="p4-standalone-asset"]'))) {
-  __ASSETS__[el.dataset.name] = el.textContent;
+window.__BINARY_ASSETS__ = {};
+for (const el of Array.from(document.querySelectorAll('script[type^="p4-standalone-"]'))) {
+  if (el.type === 'p4-standalone-binary-asset') {
+    __BINARY_ASSETS__[el.dataset.name] = el.textContent;
+  } else {
+    __ASSETS__[el.dataset.name] = el.textContent;
+  }
   el.remove();
 }
 </script>`;
