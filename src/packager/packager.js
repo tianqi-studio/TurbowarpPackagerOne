@@ -12,6 +12,7 @@ import {OutdatedPackagerError} from '../common/errors';
 import {darken} from './colors';
 import {Adapter} from './adapter';
 import encodeBigString from './encode-big-string';
+import {SFX_STUB_ASSETS, SFX_META_NAME, generateSfxMeta, generateSfxExecutable} from './sfx';
 
 const PROGRESS_LOADED_SCRIPTS = 0.1;
 
@@ -1727,19 +1728,40 @@ cd "$(dirname "$0")"
       }
 
       this.ensureNotAborted();
+
+      // Single file executables are only available for Windows targets. The option is ignored
+      // (and the regular zip is generated) for every other target.
+      const sfxStubAsset = this.options.app.singleFile ? SFX_STUB_ASSETS[this.options.target] : null;
+      if (sfxStubAsset) {
+        zip.file(SFX_META_NAME, generateSfxMeta(this.options.app.packageName));
+      }
+
+      const zipData = await zip.generateAsync({
+        type: 'uint8array',
+        compression: 'DEFLATE',
+        // Use UNIX permissions so that executable bits are properly set for macOS and Linux
+        platform: 'UNIX'
+      }, (meta) => {
+        this.dispatchEvent(new CustomEvent('zip-progress', {
+          detail: {
+            progress: meta.percent / 100
+          }
+        }));
+      });
+
+      if (sfxStubAsset) {
+        this.ensureNotAborted();
+        const stubData = await this.fetchLargeAsset(sfxStubAsset, 'arraybuffer');
+        this.ensureNotAborted();
+        return {
+          data: generateSfxExecutable(new Uint8Array(stubData), zipData),
+          type: 'application/vnd.microsoft.portable-executable',
+          filename: this.generateFilename('exe')
+        };
+      }
+
       return {
-        data: await zip.generateAsync({
-          type: 'uint8array',
-          compression: 'DEFLATE',
-          // Use UNIX permissions so that executable bits are properly set for macOS and Linux
-          platform: 'UNIX'
-        }, (meta) => {
-          this.dispatchEvent(new CustomEvent('zip-progress', {
-            detail: {
-              progress: meta.percent / 100
-            }
-          }));
-        }),
+        data: zipData,
         type: 'application/zip',
         filename: this.generateFilename('zip')
       };
@@ -1843,7 +1865,10 @@ Packager.DEFAULT_OPTIONS = () => ({
     version: '1.0.0',
     escapeBehavior: 'unfullscreen-only',
     windowControls: 'default',
-    backgroundThrottling: false
+    backgroundThrottling: false,
+    // Windows only. Packages the application into a single self-extracting executable instead
+    // of a zip archive that contains a folder.
+    singleFile: false
   },
   chunks: {
     gamepad: false,

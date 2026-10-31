@@ -503,6 +503,25 @@
       "string": "Updating the version is completely optional and doesn't affect your project's behavior. It may appear in places like about screens depending on the environment. Should be formatted as X.Y.Z.",
       "developer_comment": "Additional information about the version number option"
     },
+    "packagingMode": {
+      "string": "Packaging mode",
+      "developer_comment": "Label to select between a folder application and a single file application"
+    },
+    "packagingMode-folder": {
+      "string": "Folder (recommended)",
+      "developer_comment": "Option to package the application as a zip archive that contains a folder"
+    },
+    "packagingMode-single": {
+      "string": "Single file (one .exe)",
+      "developer_comment": "Option to package the application as a single self-extracting executable. Do not translate '.exe'."
+    },
+    "packagingModeHelp": {
+      "string": "Single file applications are one executable that extracts itself to %LOCALAPPDATA% the first time it is opened. They only work on Windows. Folder applications are a zip archive that users need to extract before they can run them.",
+      "developer_comment": "Explanation of the difference between the two packaging modes. Do not translate '%LOCALAPPDATA%' or 'Windows'."
+    },
+    "singleFileInfo": {
+      "string": "This application will be a single .exe file. The first time it is opened it will extract itself, which takes a few seconds; later launches will be fast. Note that some antivirus software falsely flags self-extracting executables."
+    },
     "initalWindowSize": {
       "string": "Initial window size",
       "developer_comment": "Name of setting to change the size of the window when the app first opens"

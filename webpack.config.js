@@ -236,6 +236,15 @@ const makeNode = () => ({
   },
   plugins: [
     ...commonFrontendPlugins(),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          // Used by the single file executable feature. See src/sfx/README.md
+          from: 'static/sfx',
+          to: 'sfx'
+        }
+      ]
+    }),
     ...(process.env.BUNDLE_ANALYZER === 'node' ? [new BundleAnalyzerPlugin()] : [])
   ],
 });

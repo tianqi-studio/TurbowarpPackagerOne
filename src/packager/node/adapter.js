@@ -47,6 +47,13 @@ class NodeAdapter {
       }
     }
 
+    if (src.startsWith('sfx/')) {
+      const file = safeJoin(__dirname, src);
+      if (file) {
+        return nodeBufferToArrayBuffer(await readFile(file));
+      }
+    }
+
     if (src.startsWith('https:')) {
       const cachePath = await getCachePath(asset);
       if (cachePath) {

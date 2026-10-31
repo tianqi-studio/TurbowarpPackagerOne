@@ -7,5 +7,8 @@ demo_output*
 .packager-cache
 packaged-project
 
+# Output of scripts/build-single.js
+output
+
 # macOS
 .DS_Store

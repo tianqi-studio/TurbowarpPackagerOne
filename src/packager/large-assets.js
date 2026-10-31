@@ -19,6 +19,7 @@ const externalFile = (name) => [
 ];
 
 const relativeScaffolding = (name) => `scaffolding/${name}`;
+const relativeSfx = (name) => `sfx/${name}`;
 
 export default {
   'nwjs-win64': {
@@ -100,5 +101,22 @@ export default {
     src: relativeScaffolding('addons.js'),
     estimatedSize: 19931,
     useBuildId: true
+  },
+  // The stubs that turn a zip archive into a single file executable.
+  // See src/sfx/README.md and src/packager/sfx.js
+  'sfx-stub-x86': {
+    src: relativeSfx('stub-x86.exe'),
+    sha256: '015b11043a7af81b72db319e7a96d29e92bbfa35c15062db66bd7e850d1f6e43',
+    estimatedSize: 109568
+  },
+  'sfx-stub-x64': {
+    src: relativeSfx('stub-x64.exe'),
+    sha256: '6e1186e2947906296d088438353cce404dca14ffdfd0c8a531b24afd484427b3',
+    estimatedSize: 103424
+  },
+  'sfx-stub-arm64': {
+    src: relativeSfx('stub-arm64.exe'),
+    sha256: '856650a20a91c875c52289224e1da4fccc57c0328fdc7c767f7a6606f955ae36',
+    estimatedSize: 39936
   }
 };

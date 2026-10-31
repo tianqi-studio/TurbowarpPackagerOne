@@ -123,7 +123,8 @@ const result = await packager.package();
 // This is not sanitized so it could contain things like path traversal exploits. Be careful.
 const filename = result.filename;
 
-// MIME type of the packaged project. Either "text/html" or "application/zip"
+// MIME type of the packaged project. "text/html", "application/zip", or
+// "application/vnd.microsoft.portable-executable" for single file executables
 const type = result.type;
 
 // The packaged project's data. Will always be a Uint8Array.
@@ -145,5 +146,18 @@ packager.addEventListener('large-asset-fetch', ({detail}) => {
 ```
 
 What you do with `data` is now entirely up to you.
+
+### Single file executables
+
+Windows Electron and NW.js targets can be packaged as a single self-extracting `.exe` instead of
+a zip archive by setting `packager.options.app.singleFile = true`. The result's `type` will be
+`application/vnd.microsoft.portable-executable` and its `filename` will end in `.exe`. This is
+ignored for every other target. See the "Single file executables" section of the main README for
+the limitations.
+
+```js
+packager.options.target = 'electron-win64';
+packager.options.app.singleFile = true;
+```
 
 Be mindful of the copyright on the projects you package.
